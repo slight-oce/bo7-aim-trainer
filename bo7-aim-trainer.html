@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BO7 Aim" />
+  <meta name="theme-color" content="#0a0c10" />
+  <title>BO7 Aim Trainer</title>
+  <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;BO7 Aim Trainer&quot;,&quot;short_name&quot;:&quot;BO7 Aim&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230a0c10&quot;,&quot;theme_color&quot;:&quot;%230a0c10&quot;,&quot;start_url&quot;:&quot;.&quot;}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0a0c10; color: #e8e6e0; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #ff4500; }
+
+    #app { display: flex; flex-direction: column; min-height: 100vh; min-height: -webkit-fill-available; }
+
+    /* HEADER */
+    .header { background: #0a0c10; border-bottom: 1px solid #1e2228; padding: 0 16px; padding-top: env(safe-area-inset-top); position: sticky; top: 0; z-index: 100; }
+    .header-top { display: flex; align-items: baseline; gap: 10px; padding: 16px 0 8px; }
+    .logo { font-size: 20px; font-weight: 700; letter-spacing: 3px; color: #ff4500; text-shadow: 0 0 18px #ff4500aa; }
+    .logo-sub { font-size: 20px; font-weight: 600; letter-spacing: 2px; }
+    .date-str { margin-left: auto; font-size: 11px; color: #444; font-family: 'Share Tech Mono', monospace; }
+
+    /* TABS */
+    .tabs { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex-shrink: 0; padding: 10px 18px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border: none; background: none; color: #555; font-family: 'Rajdhani', sans-serif; font-weight: 600; border-bottom: 2px solid transparent; cursor: pointer; transition: color .2s; }
+    .tab.active { color: #ff4500; border-bottom-color: #ff4500; }
+
+    /* CONTENT */
+    .content { flex: 1; padding: 16px 16px 100px; max-width: 700px; margin: 0 auto; width: 100%; }
+
+    /* CARDS */
+    .card { background: #111418; border: 1px solid #1e2228; border-radius: 4px; padding: 14px; margin-bottom: 12px; }
+    .card-label { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+
+    /* DRILL CARDS */
+    .drill-card { background: #0e1014; border: 1px solid #1a1f27; border-radius: 3px; padding: 13px; margin-bottom: 8px; transition: border-color .2s, background .2s; }
+    .drill-card.open { border-color: #ff450055; background: #110b08; }
+    .drill-header { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .drill-meta { flex: 1; min-width: 0; }
+    .drill-title-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; flex-wrap: wrap; }
+    .drill-name { font-size: 14px; font-weight: 600; letter-spacing: 1px; }
+    .phase-badge { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; font-weight: 700; flex-shrink: 0; }
+    .p1 { background: #1a2f1a; color: #4caf50; }
+    .p2 { background: #2a1a0a; color: #ff8c00; }
+    .p3 { background: #1a1a2f; color: #7c9fff; }
+    .drill-dur { font-size: 10px; color: #444; margin-left: auto; }
+    .drill-chevron { font-size: 11px; color: #444; margin-left: 4px; }
+    .drill-desc { font-size: 11px; color: #555; line-height: 1.4; }
+    .drill-score { text-align: center; flex-shrink: 0; }
+    .score-input { background: #0a0c10; border: 1px solid #2a2f38; color: #ff4500; font-family: 'Share Tech Mono', monospace; font-size: 17px; width: 68px; padding: 6px 8px; border-radius: 3px; text-align: center; -webkit-appearance: none; }
+    .score-input:focus { outline: none; border-color: #ff4500; }
+    .score-unit { font-size: 10px; color: #444; margin-top: 3px; }
+
+    /* DRILL EXPANDED */
+    .drill-expanded { margin-top: 13px; padding-top: 13px; border-top: 1px solid #1e2228; }
+    .bot-badge { display: inline-block; font-size: 11px; padding: 3px 10px; background: #0a1a0a; border: 1px solid #2a3a2a; border-radius: 2px; color: #4caf50; letter-spacing: .5px; margin-bottom: 10px; }
+    .drill-goal { font-size: 12px; color: #888; margin-bottom: 10px; line-height: 1.5; font-style: italic; }
+    .step-row { display: flex; gap: 9px; margin-bottom: 8px; align-items: flex-start; }
+    .step-num { min-width: 20px; height: 20px; background: #ff450022; border: 1px solid #ff450055; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #ff4500; font-family: 'Share Tech Mono', monospace; flex-shrink: 0; margin-top: 2px; }
+    .step-text { font-size: 12px; color: #aaa; line-height: 1.6; }
+    .tip-box { background: #0d1500; border: 1px solid #2a3500; border-radius: 3px; padding: 10px 12px; font-size: 12px; color: #a8c060; line-height: 1.5; }
+    .tip-label { color: #c8e070; font-weight: 700; letter-spacing: 1px; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .stat-label { font-size: 10px; color: #444; letter-spacing: 1px; margin-bottom: 5px; }
+    .stat-input { background: #0a0c10; border: 1px solid #2a2f38; color: #e8e6e0; font-family: 'Share Tech Mono', monospace; font-size: 15px; width: 100%; padding: 8px 10px; border-radius: 3px; -webkit-appearance: none; }
+    .stat-input:focus { outline: none; border-color: #ff4500; }
+
+    /* NOTES */
+    textarea { background: #0a0c10; border: 1px solid #2a2f38; color: #aaa; font-family: 'Share Tech Mono', monospace; font-size: 13px; width: 100%; padding: 10px 12px; border-radius: 3px; resize: vertical; min-height: 70px; }
+    textarea:focus { outline: none; border-color: #ff4500; }
+
+    /* SAVE BUTTON */
+    .save-btn { background: #ff4500; color: #fff; border: none; padding: 13px 32px; font-family: 'Rajdhani', sans-serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; border-radius: 3px; cursor: pointer; -webkit-appearance: none; }
+    .save-btn:active { background: #cc3800; }
+    .saved-msg { font-size: 12px; color: #4caf50; letter-spacing: 1px; }
+
+    /* SCHEDULE */
+    .day-card { border: 1px solid #1e2228; border-radius: 3px; padding: 12px 14px; margin-bottom: 8px; }
+    .day-card.today { border-color: #ff4500; background: #110800; }
+    .day-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+    .day-name { font-size: 14px; font-weight: 700; letter-spacing: 2px; min-width: 100px; }
+    .day-label { font-size: 10px; letter-spacing: 1px; color: #555; }
+    .today-badge { margin-left: auto; font-size: 10px; color: #ff4500; letter-spacing: 1px; }
+    .rest-text { color: #2a2f38; font-size: 11px; letter-spacing: 1px; margin-top: 6px; }
+    .drill-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .drill-tag { font-size: 10px; padding: 3px 8px; background: #0a0c10; border: 1px solid #1e2228; border-radius: 2px; color: #888; }
+    .drill-tag-dur { color: #333; }
+
+    /* SETTINGS TABLE */
+    .setting-row { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #1a1f27; font-size: 12px; }
+    .setting-key { color: #ff8c00; min-width: 140px; letter-spacing: .5px; flex-shrink: 0; }
+    .setting-val { color: #777; }
+
+    /* LOG */
+    .log-table { overflow: hidden; }
+    .log-row { display: grid; grid-template-columns: 88px 1fr 60px; gap: 6px; padding: 8px 12px; border-bottom: 1px solid #1a1f27; font-size: 12px; font-family: 'Share Tech Mono', monospace; align-items: start; }
+    .log-row.hdr { color: #444; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid #2a2f38; }
+    .log-stats { color: #888; font-size: 11px; }
+    .log-note { font-size: 10px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* PROGRESS */
+    .prog-card { background: #111418; border: 1px solid #1e2228; border-radius: 4px; padding: 12px 14px; margin-bottom: 8px; }
+    .prog-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .prog-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .prog-val { font-family: 'Share Tech Mono', monospace; font-size: 15px; min-width: 55px; text-align: right; }
+    .bar-wrap { height: 5px; background: #1a1f27; border-radius: 3px; flex: 1; }
+    .bar-fill { height: 5px; border-radius: 3px; transition: width .5s; }
+    .bar-row { display: flex; align-items: center; gap: 10px; }
+    .bar-count { font-size: 10px; color: #444; min-width: 55px; text-align: right; }
+
+    /* KD CHART */
+    .kd-chart { display: flex; align-items: flex-end; gap: 3px; height: 75px; }
+    .kd-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .kd-bar { width: 100%; border-radius: 2px 2px 0 0; background: #ff4500; opacity: .8; }
+    .kd-label { font-size: 9px; color: #444; font-family: 'Share Tech Mono'; }
+
+    /* EXPECT TABLE */
+    .expect-row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid #1a1f27; font-size: 12px; }
+    .expect-wk { color: #ff8c00; min-width: 65px; letter-spacing: .5px; flex-shrink: 0; }
+    .expect-note { color: #555; }
+
+    /* EMPTY STATE */
+    .empty { color: #2a2f38; font-size: 13px; text-align: center; padding: 40px 20px; }
+
+    /* TODAY HEADER */
+    .today-head { margin-bottom: 14px; }
+    .today-day { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
+    .today-dayname { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+    .focus-badge { font-size: 10px; padding: 2px 8px; background: #1a0a00; color: #ff8c00; border: 1px solid #ff8c0033; border-radius: 2px; letter-spacing: 1px; }
+    .today-sub { font-size: 11px; color: #444; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DRILLS = [
+  {
+    id:"metronome", name:"Metronome Warm-Up", phase:1, duration:5, metric:"Clean Stops", max:10, unit:"/10",
+    desc:"Sweep target to target at steady rhythm. Land without overshooting.",
+    botDifficulty:"Firing Range — Use the target dummies",
+    goal:"Train slowdown awareness and the stop-on-target instinct before every session.",
+    steps:[
+      "Go to the Firing Range. Use the stationary target dummies — no bots needed.",
+      "Pick two dummies close together. Sweep your crosshair from one to the other at a slow, steady rhythm — left, stop, right, stop.",
+      "The goal is to land exactly on the target without overshooting or correcting. If you overshoot, you went too fast.",
+      "Count each clean stop out of 10 attempts. Aim for 8+/10 before moving on.",
+      "Focus on feeling the slowdown bubble — that slight magnetic pull when your reticle passes near the target.",
+    ],
+    tip:"This is your warm-up every single session. Never skip it. Your score here predicts how well your hands are calibrated today.",
+  },
+  {
+    id:"sync", name:"Sync Drill", phase:2, duration:10, metric:"RAA Lock-In Feel", max:10, unit:"/10",
+    desc:"Strafe L/R while tracking with right stick simultaneously. Feel the lock-in.",
+    botDifficulty:"Regular — Running",
+    goal:"Train the BO7-specific dual-stick sync required to activate full Rotational Aim Assist.",
+    steps:[
+      "Set one bot to Regular difficulty, running in an open area.",
+      "Strafe LEFT with your left stick while simultaneously pushing your right stick LEFT to track the bot.",
+      "Then strafe RIGHT while tracking RIGHT. Both sticks move together in the same direction.",
+      "Feel for the moment RAA 'locks in' — the reticle will feel slightly magnetized, stickier than normal.",
+      "Rate how strongly you felt that lock-in feeling today out of 10.",
+    ],
+    tip:"This is the most important BO7-specific drill. The old meta of strafing alone to get aim assist is gone — you MUST be actively tracking with the right stick at the same time.",
+  },
+  {
+    id:"strafe", name:"Strafe & Track", phase:2, duration:10, metric:"Accuracy Feel", max:10, unit:"/10",
+    desc:"Engage moving bots while strafing continuously. Never stand still.",
+    botDifficulty:"Hardened — Running",
+    goal:"Build the habit of always moving while in a gunfight to activate RAA at full strength.",
+    steps:[
+      "Set bots to Hardened, running around the map.",
+      "Engage each bot while you yourself are strafing left or right continuously.",
+      "Never plant your feet. Movement is the trigger for maximum aim assist.",
+      "Focus on syncing your left-stick direction with your right-stick tracking — mirror each other.",
+      "Rate your overall accuracy feel for the session out of 10.",
+    ],
+    tip:"Standing still in a gunfight on controller is a trap. Your aim assist is weakest when you're stationary.",
+  },
+  {
+    id:"preaim", name:"Pre-Aim Corners", phase:3, duration:10, metric:"Correct Pre-Aims", max:10, unit:"/10",
+    desc:"Place crosshair at head height before peeking each corner. Don't adjust after.",
+    botDifficulty:"Firing Range — Target dummies at corners",
+    goal:"Train predictive motor control — aiming where enemies will be, not where they are.",
+    steps:[
+      "Walk every common corner on a map. Before you peek, place your crosshair exactly at head height where an enemy would be standing.",
+      "Do NOT adjust your aim after peeking — just check if you were right.",
+      "Count how many corners your crosshair landed correctly out of 10 attempts.",
+      "Repeat the corners you missed. Your brain needs the feedback loop.",
+      "The goal is to eliminate reactive aiming as your primary strategy.",
+    ],
+    tip:"Elite players are pre-aimed before they see the enemy. If you're adjusting after peeking, you're reacting — which is always slower.",
+  },
+  {
+    id:"figure8", name:"Figure-8 Tracking", phase:3, duration:10, metric:"Tracking Time", max:60, unit:"sec",
+    desc:"Keep a running bot centered in reticle as long as possible.",
+    botDifficulty:"Regular — Running in open area",
+    goal:"Build smooth right-stick tracking endurance and eliminate jerky micro-corrections.",
+    steps:[
+      "Set one bot to Regular, running freely in an open area.",
+      "Start tracking the bot with your right stick, keeping it centered in your reticle.",
+      "Time how long you can maintain the track before losing it. Use a stopwatch or count seconds.",
+      "The bot will change direction — focus on anticipating its movement rather than reacting to it.",
+      "Rest 15 seconds between attempts. Aim to beat your previous time each set.",
+    ],
+    tip:"If your tracking feels jerky, your sensitivity may be too high. Smooth tracking is a sign of proper dead zone and sensitivity calibration.",
+  },
+  {
+    id:"snapshooting", name:"Snap Shooting", phase:3, duration:10, metric:"First-Shot Hits", max:10, unit:"/10",
+    desc:"Look away from target, snap to it, pull trigger as stick stops. No confirmation step.",
+    botDifficulty:"Firing Range — Target dummies at varied distances",
+    goal:"Train the snap-and-fire motor pattern so the snap itself lands on target — no verification needed.",
+    steps:[
+      "Go to the Firing Range. Use target dummies spread at varied distances and angles.",
+      "Look away from the target — crosshair at the ground or a wall. This is your neutral start position.",
+      "Snap your right stick to where the dummy's head is, and pull the trigger the moment your stick stops. No pause, no check.",
+      "Only then look to see if you hit. That result is your feedback — let it teach your hands the correct speed and distance.",
+      "Count clean first-snap hits out of 10. Move to a different dummy and angle each attempt.",
+      "Focus on the motor pattern: flick → stop → trigger. The stop is the skill. If you're correcting before firing, start the rep again.",
+    ],
+    tip:"The whole point is that you don't confirm before shooting. If you pause to check you're on target, you've added a reaction step — which is exactly what you're trying to eliminate. Trust the snap, fire, then learn from whether it landed.",
+  },
+  {
+    id:"longrange", name:"Long-Range Tracking", phase:3, duration:10, metric:"On-Target %", max:100, unit:"%",
+    desc:"Track a distant moving bot. Focus on smooth right-stick control.",
+    botDifficulty:"Regular — Running, engage from max distance",
+    goal:"Train fine right-stick micro-adjustments needed at range where slowdown bubble is smallest.",
+    steps:[
+      "Set bots to Regular on a large open map. Engage them from maximum comfortable distance.",
+      "Focus entirely on smooth, minimal right-stick inputs — tiny adjustments, no big sweeps.",
+      "At range, the aim assist slowdown bubble is much smaller. You are training raw tracking here.",
+      "Estimate your on-target percentage honestly for the session.",
+      "If accuracy is below 40%, your sensitivity may be too high for long-range work.",
+    ],
+    tip:"Long-range is where controller players struggle most. Lower your sensitivity slightly if this drill feels impossible — it's supposed to feel harder than close range.",
+  },
+];
+
+const SCHEDULE = [
+  { day:"Monday",    drills:["metronome","sync","strafe"],                        label:"RAA Focus" },
+  { day:"Tuesday",   drills:["metronome","preaim","figure8"],                     label:"Precision" },
+  { day:"Wednesday", drills:[],                                                   label:"Rest Day" },
+  { day:"Thursday",  drills:["metronome","sync","snapshooting"],                  label:"Snap & Sync" },
+  { day:"Friday",    drills:["metronome","strafe","longrange"],                   label:"Tracking" },
+  { day:"Saturday",  drills:["metronome","sync","preaim","figure8","snapshooting"],label:"Full Session" },
+  { day:"Sunday",    drills:[],                                                   label:"Rest Day" },
+];
+
+const STORAGE_KEY = "bo7_aim_logs";
+function loadLogs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); } catch { return []; } }
+function saveLogs(l) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(l)); } catch {} }
+
+// ---- STATE ----
+const today = new Date().toLocaleDateString("en-CA");
+const dayName = new Date().toLocaleDateString("en-US", { weekday:"long" });
+const todaySched = SCHEDULE.find(s => s.day === dayName) || SCHEDULE[0];
+
+let state = {
+  tab: "today",
+  logs: loadLogs(),
+  session: { date:today, kd:"", accuracy:"", headshot:"", drills:{}, notes:"" },
+  saved: false,
+  expandedDrill: null,
+};
+
+// Pre-fill today's session if already logged
+const existing = state.logs.find(l => l.date === today);
+if (existing) state.session = JSON.parse(JSON.stringify(existing));
+
+// ---- RENDER ----
+function render() {
+  document.getElementById("app").innerHTML = buildApp();
+  bindEvents();
+}
+
+function buildApp() {
+  return `
+    <div class="header">
+      <div class="header-top">
+        <span class="logo">BO7</span>
+        <span class="logo-sub">AIM TRAINER</span>
+        <span class="date-str">${today}</span>
+      </div>
+      <div class="tabs">
+        ${["today","schedule","log","progress"].map(t =>
+          `<button class="tab${state.tab===t?" active":""}" data-tab="${t}">${t}</button>`
+        ).join("")}
+      </div>
+    </div>
+    <div class="content">
+      ${state.tab==="today"    ? buildToday()    : ""}
+      ${state.tab==="schedule" ? buildSchedule() : ""}
+      ${state.tab==="log"      ? buildLog()      : ""}
+      ${state.tab==="progress" ? buildProgress() : ""}
+    </div>
+  `;
+}
+
+function buildToday() {
+  const s = todaySched;
+  const isRest = s.drills.length === 0;
+  return `
+    <div class="today-head">
+      <div class="today-day">
+        <span class="today-dayname">${dayName.toUpperCase()}</span>
+        <span class="focus-badge">${s.label}</span>
+      </div>
+      <div class="today-sub">${isRest ? "REST DAY — Recovery is part of training" : s.drills.length + " DRILLS SCHEDULED"}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">In-Game Stats</div>
+      <div class="stats-grid">
+        ${[["K/D","kd","1.8"],["Accuracy %","accuracy","28"],["Headshot %","headshot","12"]].map(([lbl,key,ph]) => `
+          <div>
+            <div class="stat-label">${lbl}</div>
+            <input class="stat-input" type="number" step="0.01" placeholder="${ph}" value="${state.session[key]||""}" data-stat="${key}" inputmode="decimal" />
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    ${!isRest ? `
+      <div class="card-label" style="margin-bottom:10px">Drill Scores</div>
+      ${DRILLS.filter(d => s.drills.includes(d.id)).map(d => buildDrillCard(d)).join("")}
+    ` : ""}
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-label">Session Notes</div>
+      <textarea placeholder="What felt different today? Any breakthroughs or issues..." data-notes>${escHtml(state.session.notes||"")}</textarea>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+      <button class="save-btn" id="saveBtn">Save Session</button>
+      ${state.saved ? `<span class="saved-msg">✓ SAVED</span>` : ""}
+    </div>
+  `;
+}
+
+function buildDrillCard(d) {
+  const isOpen = state.expandedDrill === d.id;
+  const val = state.session.drills[d.id] ?? "";
+  return `
+    <div class="drill-card${isOpen?" open":""}" id="dc-${d.id}">
+      <div class="drill-header" data-expand="${d.id}">
+        <div class="drill-meta">
+          <div class="drill-title-row">
+            <span class="drill-name">${d.name}</span>
+            <span class="phase-badge p${d.phase}">P${d.phase}</span>
+            <span class="drill-dur">${d.duration}min</span>
+            <span class="drill-chevron">${isOpen?"▲":"▼"}</span>
+          </div>
+          <div class="drill-desc">${d.desc}</div>
+        </div>
+        <div class="drill-score" data-stop>
+          <input class="score-input" type="number" inputmode="decimal" min="0" max="${d.max}" placeholder="—" value="${val}" data-drill="${d.id}" />
+          <div class="score-unit">${d.unit}</div>
+        </div>
+      </div>
+      ${isOpen ? `
+        <div class="drill-expanded">
+          <div class="bot-badge">🎮 ${d.botDifficulty}</div>
+          <div class="drill-goal">${d.goal}</div>
+          <div style="margin-bottom:10px">
+            ${d.steps.map((step, i) => `
+              <div class="step-row">
+                <div class="step-num">${i+1}</div>
+                <div class="step-text">${step}</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="tip-box"><span class="tip-label">TIP </span>${d.tip}</div>
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+function buildSchedule() {
+  return `
+    <div class="card-label" style="margin-bottom:12px">Weekly Training Plan</div>
+    ${SCHEDULE.map(s => {
+      const isToday = s.day === dayName;
+      return `
+        <div class="day-card${isToday?" today":""}">
+          <div class="day-header">
+            <span class="day-name">${s.day.toUpperCase()}</span>
+            <span class="day-label" style="color:${isToday?"#ff8c00":"#555"}">${s.label}</span>
+            ${isToday ? `<span class="today-badge">TODAY</span>` : ""}
+          </div>
+          ${s.drills.length===0
+            ? `<div class="rest-text">— REST & RECOVERY —</div>`
+            : `<div class="drill-tags">${s.drills.map(id => {
+                const d = DRILLS.find(x=>x.id===id);
+                return `<span class="drill-tag">${d?.name} <span class="drill-tag-dur">${d?.duration}m</span></span>`;
+              }).join("")}</div>`
+          }
+        </div>
+      `;
+    }).join("")}
+
+    <div class="card" style="margin-top:8px">
+      <div class="card-label">Recommended Settings</div>
+      ${[
+        ["Aim Assist Profile","Standard → Precision once fundamentals solid"],
+        ["Dead Zones","Minimize until slightest movement registers, back off slightly"],
+        ["Motion Blur","OFF (weapon + world)"],
+        ["Depth of Field","OFF"],
+        ["Field of View","110–115°"],
+      ].map(([k,v]) => `
+        <div class="setting-row">
+          <span class="setting-key">${k}</span>
+          <span class="setting-val">${v}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function buildLog() {
+  const logs = state.logs.slice(0,14);
+  return `
+    <div class="card-label" style="margin-bottom:12px">Session History</div>
+    ${logs.length===0
+      ? `<div class="empty">No sessions logged yet.<br>Complete today's session to start tracking.</div>`
+      : `<div class="card log-table" style="padding:0;overflow:hidden">
+          <div class="log-row hdr"><div>Date</div><div>Stats</div><div>Drills</div></div>
+          ${logs.map(log => {
+            const dc = Object.keys(log.drills||{}).filter(k=>log.drills[k]!=="").length;
+            return `
+              <div class="log-row" style="${log.date===today?"background:#110800":""}">
+                <div style="color:${log.date===today?"#ff4500":"#555"};font-weight:${log.date===today?700:400}">${log.date}</div>
+                <div class="log-stats">
+                  ${log.kd||"—"} / ${log.accuracy?log.accuracy+"%":"—"} / ${log.headshot?log.headshot+"%":"—"}
+                  ${log.notes?`<div class="log-note">${escHtml(log.notes)}</div>`:""}
+                </div>
+                <div style="color:#555;font-family:'Share Tech Mono'">${dc>0?dc+"d":"—"}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>`
+    }
+  `;
+}
+
+function buildProgress() {
+  const logs = state.logs;
+  const avgs = DRILLS.map(d => {
+    const vals = logs.slice(0,7).map(l=>parseFloat(l.drills?.[d.id])).filter(v=>!isNaN(v));
+    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+    return {...d, avg, count:vals.length};
+  });
+
+  const kdData = logs.slice(0,10).reverse();
+  const allKDs = logs.filter(l=>l.kd).map(l=>parseFloat(l.kd)).filter(v=>!isNaN(v));
+  const maxKD = Math.max(...allKDs, 2);
+
+  return `
+    <div class="card-label" style="margin-bottom:12px">7-Day Drill Averages</div>
+    ${avgs.map(d => {
+      const pct = d.avg ? Math.min(100,(parseFloat(d.avg)/d.max)*100) : 0;
+      const barColor = pct>75?"#4caf50":pct>40?"#ff8c00":"#ff4500";
+      return `
+        <div class="prog-card">
+          <div class="prog-top">
+            <span class="prog-name">${d.name}</span>
+            <span class="phase-badge p${d.phase}">P${d.phase}</span>
+            <span class="prog-val" style="color:${d.avg?"#ff4500":"#2a2f38"}">${d.avg?`${d.avg}${d.unit}`:"—"}</span>
+          </div>
+          <div class="bar-row">
+            <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+            <span class="bar-count">${d.count} sessions</span>
+          </div>
+        </div>
+      `;
+    }).join("")}
+
+    ${kdData.length>=2 ? `
+      <div style="margin-top:18px">
+        <div class="card-label" style="margin-bottom:10px">K/D Trend (last 10)</div>
+        <div class="card">
+          <div class="kd-chart">
+            ${kdData.map((log,i) => {
+              const val = parseFloat(log.kd);
+              const h = isNaN(val) ? 0 : Math.max(4,(val/maxKD)*68);
+              return `
+                <div class="kd-bar-wrap">
+                  <div class="kd-bar" style="height:${h}px"></div>
+                  <div class="kd-label">${isNaN(val)?"—":val.toFixed(1)}</div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+    ` : ""}
+
+    <div class="card" style="margin-top:10px">
+      <div class="card-label">What to Expect</div>
+      ${[
+        ["Week 1–2","Drill scores feel inconsistent. Normal."],
+        ["Week 3–4","Metronome & Pre-Aim should stabilize above 7/10"],
+        ["Week 5–6","Accuracy % in live games should visibly rise"],
+        ["Week 8+","K/D & headshot % reflect compound improvement"],
+      ].map(([wk,note]) => `
+        <div class="expect-row">
+          <span class="expect-wk">${wk}</span>
+          <span class="expect-note">${note}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ---- EVENTS ----
+function bindEvents() {
+  // Tabs
+  document.querySelectorAll("[data-tab]").forEach(el => {
+    el.addEventListener("click", () => { state.tab = el.dataset.tab; state.saved = false; render(); });
+  });
+
+  // Stat inputs
+  document.querySelectorAll("[data-stat]").forEach(el => {
+    el.addEventListener("input", () => { state.session[el.dataset.stat] = el.value; state.saved = false; });
+  });
+
+  // Drill score inputs
+  document.querySelectorAll("[data-drill]").forEach(el => {
+    el.addEventListener("input", () => {
+      state.session.drills[el.dataset.drill] = el.value;
+      state.saved = false;
+    });
+  });
+
+  // Drill expand — header tap, but not on score input
+  document.querySelectorAll("[data-expand]").forEach(el => {
+    el.addEventListener("click", (e) => {
+      if (e.target.closest("[data-stop]")) return;
+      const id = el.dataset.expand;
+      state.expandedDrill = state.expandedDrill === id ? null : id;
+      render();
+    });
+  });
+
+  // Notes
+  const ta = document.querySelector("[data-notes]");
+  if (ta) ta.addEventListener("input", () => { state.session.notes = ta.value; state.saved = false; });
+
+  // Save
+  const saveBtn = document.getElementById("saveBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const updated = state.logs.filter(l => l.date !== today);
+      state.logs = [JSON.parse(JSON.stringify(state.session)), ...updated].slice(0, 60);
+      saveLogs(state.logs);
+      state.saved = true;
+      render();
+    });
+  }
+}
+
+render();
+</script>
+</body>
+</html>
