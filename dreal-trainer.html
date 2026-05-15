@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DREAL Trainer"/>
+  <meta name="theme-color" content="#080a0d"/>
+  <title>DREAL Academy Trainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;background:#080a0d;color:#e0ddd8;font-family:'Barlow',sans-serif;-webkit-tap-highlight-color:transparent;}
+    ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:#0d0f13;}::-webkit-scrollbar-thumb{background:#c8a850;}
+
+    /* LAYOUT */
+    #app{display:flex;flex-direction:column;min-height:100vh;min-height:-webkit-fill-available;}
+    .content{flex:1;padding:16px 16px 100px;max-width:680px;margin:0 auto;width:100%;}
+
+    /* HEADER */
+    .header{background:#080a0d;border-bottom:1px solid #1a1d23;padding:0 16px;padding-top:env(safe-area-inset-top);position:sticky;top:0;z-index:100;}
+    .header-top{display:flex;align-items:center;gap:10px;padding:14px 0 6px;}
+    .logo-mark{width:32px;height:32px;background:#c8a850;clip-path:polygon(20% 0%,80% 0%,100% 50%,80% 100%,20% 100%,0% 50%);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .logo-text{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:3px;color:#c8a850;}
+    .logo-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;letter-spacing:2px;color:#555;margin-top:1px;}
+    .header-date{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:10px;color:#383c44;}
+
+    /* TABS */
+    .tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-top:1px solid #13161c;}
+    .tabs::-webkit-scrollbar{display:none;}
+    .tab{flex-shrink:0;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;background:none;color:#444;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s;}
+    .tab.active{color:#c8a850;border-bottom-color:#c8a850;}
+
+    /* SECTION LABELS */
+    .sec-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;color:#444;text-transform:uppercase;margin-bottom:12px;}
+    .sec-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;margin-bottom:4px;}
+
+    /* CARDS */
+    .card{background:#0d0f13;border:1px solid #1a1d23;border-radius:3px;padding:14px;margin-bottom:10px;}
+    .card.gold{border-color:#c8a85033;background:#0e0d0a;}
+    .card.active-card{border-color:#c8a85066;background:#0f0e0a;}
+
+    /* PHASE BLOCK */
+    .phase-block{background:#080a0d;border:1px solid #1a1d23;border-left:3px solid #c8a850;border-radius:0 3px 3px 0;padding:12px 14px;margin-bottom:8px;}
+    .phase-block.blue{border-left-color:#4a7fff;}
+    .phase-block.green{border-left-color:#4caf50;}
+    .phase-block.red{border-left-color:#ff4422;}
+    .phase-header{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;-webkit-user-select:none;}
+    .phase-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;flex:1;}
+    .phase-time{font-size:11px;color:#555;letter-spacing:1px;}
+    .phase-chev{font-size:11px;color:#444;}
+    .phase-desc{font-size:12px;color:#666;margin-top:4px;}
+
+    /* DRILL ROWS inside phase */
+    .phase-expanded{margin-top:12px;padding-top:12px;border-top:1px solid #1a1d23;}
+    .drill-row{background:#0a0c10;border:1px solid #13161c;border-radius:2px;padding:11px 13px;margin-bottom:6px;}
+    .drill-row.open{border-color:#c8a85044;}
+    .drill-top{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+    .drill-letter{width:22px;height:22px;background:#c8a85022;border:1px solid #c8a85055;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:#c8a850;flex-shrink:0;}
+    .drill-letter.blue{background:#4a7fff22;border-color:#4a7fff55;color:#4a7fff;}
+    .drill-letter.green{background:#4caf5022;border-color:#4caf5055;color:#4caf50;}
+    .drill-letter.red{background:#ff442222;border-color:#ff442255;color:#ff4422;}
+    .drill-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;flex:1;}
+    .drill-reps{font-family:'Share Tech Mono',monospace;font-size:11px;color:#555;}
+    .drill-chev{font-size:10px;color:#333;}
+    .drill-short{font-size:11px;color:#555;margin-top:3px;margin-left:32px;}
+
+    /* DRILL EXPANDED */
+    .drill-expanded{margin-top:10px;padding-top:10px;border-top:1px solid #13161c;margin-left:32px;}
+    .cue-box{background:#0f0e08;border:1px solid #2a2500;border-radius:2px;padding:8px 11px;margin-bottom:8px;font-size:12px;color:#c8a850;font-style:italic;letter-spacing:.3px;}
+    .step-list{margin-bottom:8px;}
+    .step-item{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+    .step-n{min-width:18px;height:18px;background:#c8a85022;border:1px solid #c8a85044;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#c8a850;font-family:'Share Tech Mono',monospace;flex-shrink:0;margin-top:2px;}
+    .step-n.blue{background:#4a7fff22;border-color:#4a7fff44;color:#4a7fff;}
+    .step-n.green{background:#4caf5022;border-color:#4caf5044;color:#4caf50;}
+    .step-text{font-size:12px;color:#999;line-height:1.6;}
+    .purpose-box{background:#0a0d0a;border:1px solid #1a2a1a;border-radius:2px;padding:8px 11px;font-size:11px;color:#6a9a6a;line-height:1.5;}
+    .purpose-label{color:#4caf50;font-weight:700;letter-spacing:1px;font-size:10px;}
+
+    /* SCORE INPUT */
+    .score-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;}
+    .score-label{font-size:11px;color:#555;letter-spacing:1px;min-width:80px;}
+    .score-in{background:#080a0d;border:1px solid #1a1d23;color:#c8a850;font-family:'Share Tech Mono',monospace;font-size:15px;width:70px;padding:5px 8px;border-radius:2px;text-align:center;-webkit-appearance:none;}
+    .score-in:focus{outline:none;border-color:#c8a850;}
+    .score-unit{font-size:10px;color:#444;}
+
+    /* CHECKBOX */
+    .check-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #0d0f13;cursor:pointer;}
+    .check-row:last-child{border-bottom:none;}
+    .check-box{width:18px;height:18px;border:1px solid #2a2f38;border-radius:2px;background:#080a0d;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#c8a850;transition:all .15s;}
+    .check-box.checked{background:#c8a85022;border-color:#c8a850;}
+    .check-text{font-size:13px;color:#888;flex:1;}
+    .check-text.checked{color:#c8a850;}
+
+    /* TEXT INPUTS */
+    .text-in{background:#080a0d;border:1px solid #1a1d23;color:#ccc;font-family:'Barlow',sans-serif;font-size:13px;width:100%;padding:9px 12px;border-radius:2px;}
+    .text-in:focus{outline:none;border-color:#c8a850;}
+    textarea.text-in{resize:vertical;min-height:60px;font-family:'Barlow',sans-serif;}
+    .field-label{font-size:10px;color:#444;letter-spacing:1px;margin-bottom:5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+
+    /* STAT GRID */
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+    .stat-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .stat-in{background:#080a0d;border:1px solid #1a1d23;color:#e0ddd8;font-family:'Share Tech Mono',monospace;font-size:14px;width:100%;padding:8px 10px;border-radius:2px;-webkit-appearance:none;}
+    .stat-in:focus{outline:none;border-color:#c8a850;}
+
+    /* BUTTONS */
+    .btn-primary{background:#c8a850;color:#080a0d;border:none;padding:12px 28px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:3px;text-transform:uppercase;border-radius:2px;cursor:pointer;-webkit-appearance:none;}
+    .btn-primary:active{background:#a88c3a;}
+    .saved-msg{font-size:11px;color:#4caf50;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;}
+
+    /* MINDSET PILLS */
+    .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+    .pill{padding:5px 12px;border:1px solid #1a1d23;border-radius:20px;font-size:11px;color:#555;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;transition:all .15s;}
+    .pill.sel{border-color:#c8a850;color:#c8a850;background:#c8a85011;}
+
+    /* FOCUS SKILL CHIPS */
+    .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+    .chip{padding:4px 10px;border:1px solid #1a1d23;border-radius:2px;font-size:11px;color:#555;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;}
+    .chip.sel{border-color:#4a7fff;color:#4a7fff;background:#4a7fff11;}
+
+    /* 30 DAY CALENDAR */
+    .week-block{margin-bottom:16px;}
+    .week-label{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:2px;color:#c8a850;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1a1d23;}
+    .day-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #0d0f13;align-items:flex-start;}
+    .day-num{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:#1e2128;min-width:36px;}
+    .day-num.today{color:#c8a850;}
+    .day-num.done{color:#4caf5044;}
+    .day-focus{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:#aaa;}
+    .day-focus.today{color:#c8a850;}
+    .day-detail{font-size:11px;color:#555;margin-top:2px;line-height:1.4;}
+    .day-badge{font-size:9px;padding:2px 7px;border-radius:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto;flex-shrink:0;}
+    .rest-badge{background:#1a1d23;color:#444;}
+    .today-badge{background:#c8a85022;color:#c8a850;border:1px solid #c8a85044;}
+    .done-badge{background:#4caf5011;color:#4caf50;border:1px solid #4caf5033;}
+
+    /* SCORECARD */
+    .score-card-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #0d0f13;align-items:center;}
+    .score-card-label{font-size:12px;color:#666;flex:1;}
+    .score-card-in{background:#080a0d;border:1px solid #1a1d23;color:#c8a850;font-family:'Share Tech Mono',monospace;font-size:13px;width:80px;padding:5px 8px;border-radius:2px;text-align:center;-webkit-appearance:none;}
+    .score-card-in:focus{outline:none;border-color:#c8a850;}
+
+    /* SELF ASSESSMENT */
+    .assess-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #0d0f13;}
+    .assess-skill{flex:1;font-size:13px;color:#aaa;}
+    .assess-desc{font-size:10px;color:#444;margin-top:2px;}
+    .rating-row{display:flex;gap:4px;}
+    .rating-dot{width:22px;height:22px;border:1px solid #1a1d23;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#333;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all .15s;}
+    .rating-dot.sel{background:#c8a850;border-color:#c8a850;color:#080a0d;font-weight:700;}
+
+    /* LOG TABLE */
+    .log-row{display:grid;grid-template-columns:85px 1fr 50px;gap:6px;padding:8px 12px;border-bottom:1px solid #0d0f13;font-family:'Share Tech Mono',monospace;font-size:11px;align-items:start;}
+    .log-row.hdr{font-size:9px;letter-spacing:1px;color:#333;border-bottom:1px solid #1a1d23;text-transform:uppercase;}
+    .log-date-cell{color:#555;}
+    .log-date-cell.today{color:#c8a850;font-weight:700;}
+    .log-stats-cell{color:#777;}
+    .log-note-cell{color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+    /* PROGRESS BARS */
+    .prog-row{padding:10px 0;border-bottom:1px solid #0d0f13;}
+    .prog-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+    .prog-skill{font-size:13px;color:#aaa;flex:1;}
+    .prog-val{font-family:'Share Tech Mono',monospace;font-size:13px;color:#c8a850;}
+    .bar-bg{height:4px;background:#13161c;border-radius:2px;}
+    .bar-fg{height:4px;border-radius:2px;background:#c8a850;transition:width .6s;}
+
+    /* SETTINGS */
+    .set-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #0d0f13;}
+    .set-key{font-size:11px;color:#c8a850;min-width:150px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.5px;}
+    .set-val{font-size:11px;color:#666;line-height:1.4;}
+
+    /* PITFALLS */
+    .pitfall-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #0d0f13;font-size:12px;}
+    .pitfall-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+    .pitfall-text{color:#888;line-height:1.5;}
+
+    /* EMPTY */
+    .empty{color:#222;font-size:13px;text-align:center;padding:40px 20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+
+    /* TODAY DAY LABEL */
+    .today-top{margin-bottom:16px;}
+    .today-mission{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#555;letter-spacing:2px;margin-bottom:2px;}
+    .today-dayname{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;letter-spacing:3px;color:#e0ddd8;}
+    .today-focus{font-size:11px;color:#c8a850;letter-spacing:1px;margin-top:2px;}
+
+    /* EVENING REFLECTION */
+    .reflect-q{font-size:12px;color:#888;margin-bottom:6px;}
+    .reflect-num{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#c8a850;letter-spacing:1px;margin-bottom:4px;}
+
+    /* MINDSET CHECK */
+    .mindset-checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+    .m-check{padding:6px 12px;border:1px solid #1a1d23;border-radius:2px;font-size:11px;color:#444;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;transition:all .15s;}
+    .m-check.checked{border-color:#4caf50;color:#4caf50;background:#4caf5011;}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+const NEURO_DRILLS = [
+  {
+    id:"fixation", letter:"A", color:"gold", name:"Target Fixation", reps:"50–100 reps", time:"5–8 min",
+    short:"Eyes on adjacent target, crosshair on middle dummy via peripheral vision.",
+    cue:"Quiet Eye. Tiny corrections. Zero rush.",
+    purpose:"Builds crosshair stability via peripheral → foveal control.",
+    steps:[
+      "Go to Firing Range. Place your crosshair on the 2nd / middle dummy target.",
+      "Keep your head still. Lock your eyes on the target to the LEFT or RIGHT — do NOT look at your crosshair.",
+      "Use peripheral vision to guide your crosshair to where your eyes are looking.",
+      "Fire ONLY when perfectly aligned. Quality over speed.",
+      "Alternate which side you look to each rep. Aim for zero overshoot.",
+    ],
+  },
+  {
+    id:"saccade", letter:"B", color:"gold", name:"Saccade / Flick", reps:"100 reps", time:"5–8 min",
+    short:"Eyes snap to far target first — then hands follow. Never simultaneously.",
+    cue:"Eyes lead. Hand arrives. No overflick.",
+    purpose:"Reduces saccadic delay — sharpens flick accuracy.",
+    steps:[
+      "Set up two targets far left and far right in the Firing Range.",
+      "Start with crosshair AND eyes on the far left target.",
+      "Snap your EYES to the far right target first. Do NOT move your sticks yet.",
+      "Only once your eyes have snapped — move your crosshair to where your eyes are and shoot.",
+      "Alternate sides every rep. Vary distance between targets across sets.",
+    ],
+  },
+  {
+    id:"tracking", letter:"C", color:"blue", name:"Tracking", reps:"3 × 90–120s", time:"5–8 min",
+    short:"Eyes locked on target center. Crosshair glued with micro-movements.",
+    cue:"Smooth over fast. Glue the crosshair.",
+    purpose:"Synchronizes foveal tracking with peripheral correction.",
+    steps:[
+      "Private match, 1 Recruit bot, max player health in Game Rules.",
+      "Lock your eyes on the bot's center mass. Do not shoot — just track.",
+      "Maintain crosshair overlap using only micro right-stick adjustments.",
+      "Start slow — increase bot speed / difficulty each rep.",
+      "Rest 30–45 seconds between reps.",
+    ],
+  },
+  {
+    id:"peripheral", letter:"D", color:"green", name:"Peripheral Awareness", reps:"2–4 min", time:"2–4 min",
+    short:"Fixate center. Detect edge threats without moving your gaze.",
+    cue:"See more while looking less.",
+    purpose:"Improves peripheral-to-foveal coordination — vital for minimap, recoil, off-screen threats.",
+    steps:[
+      "Fix your gaze on a central point in the Firing Range.",
+      "Without shifting your eyes, detect targets or movement at the edges of your screen.",
+      "Dry-fire at peripheral targets using only your peripheral vision to aim.",
+      "The goal is awareness without tunnel vision — train your brain to process the full screen.",
+    ],
+  },
+];
+
+const BOT_DRILLS = [
+  {
+    id:"centering", letter:"1", color:"gold", name:"Centering / Crosshair Placement", reps:"25 reps × 2 sets",
+    short:"Pre-aim every corner at head height. Arrive centered — fire immediately.",
+    cue:"Crosshair lives where heads spawn.",
+    purpose:"Eliminates reactive aim — you're on target before the fight starts.",
+    steps:[
+      "Private match, no bots needed. Pick a small map (Nuketown / Stash House).",
+      "Walk every common corner. Before peeking — place crosshair at exact head height.",
+      "Peek. Do NOT adjust after. Check if you were right.",
+      "Every miss is a rep to learn from. Every hit is the pattern reinforcing.",
+      "Focus: arrive pre-centered → fire immediately. No settling time.",
+    ],
+    metric:"Correct pre-aims", max:25, unit:"/25",
+  },
+  {
+    id:"slidecancel", letter:"2", color:"gold", name:"Slide-Cancel / Entry Timing", reps:"25 reps × 2 sets",
+    short:"Slide breaks your movement line. ADS exits the slide. First bullet center-mass.",
+    cue:"Slide breaks the line. Gun up instantly.",
+    purpose:"Makes your entry unpredictable and your first bullet count.",
+    steps:[
+      "Private match, Recruit bots, max player health.",
+      "Approach each engagement with a slide — cancel it as you enter the fight.",
+      "ADS as you exit the slide — first bullet should land center-mass.",
+      "From center-mass, rise the reticle to the head for follow-up shots.",
+      "Focus on the timing: slide → cancel → ADS in one fluid motion.",
+    ],
+    metric:"Clean slide entries", max:25, unit:"/25",
+  },
+  {
+    id:"recoil", letter:"3", color:"blue", name:"Recoil Control", reps:"25 reps × 2 sets",
+    short:"Counter the spray pattern downward. Keep chin pinned to upper chest/head.",
+    cue:"Counter the pattern. Keep the chin pinned.",
+    purpose:"Extends your effective range and keeps bullets on target through full mag.",
+    steps:[
+      "Firing Range. Pick your main weapon.",
+      "Fire controlled bursts at a target at medium-long range.",
+      "Pull down on the right stick to counter the upward recoil — keep reticle on upper chest / head.",
+      "Log your longest consistent head/upper-chest hold in your session notes.",
+      "Do NOT spray and pray — every rep is deliberate burst control.",
+    ],
+    metric:"Longest clean hold (bursts)", max:10, unit:"/10",
+  },
+  {
+    id:"minimap", letter:"4", color:"blue", name:"Minimap Awareness", reps:"25 reps × 2 sets",
+    short:"Glance map every 3–5 seconds or after shots. Say your spawn read out loud.",
+    cue:"Eyes flick map every 3–5 seconds or after shots.",
+    purpose:"Turns information into decisions — spawn reads, rotations, trades.",
+    steps:[
+      "Private match with bots running. Play a full match.",
+      "Every 3–5 seconds, or after you hear shots — flick your eyes to the minimap.",
+      "Peek → glance map → adjust your route or call a spawn read → re-center.",
+      "Say your read out loud: 'They're spawning top', 'flanking right', etc.",
+      "Count how many times per minute you actively glance the minimap.",
+    ],
+    metric:"Map glances / min (est.)", max:15, unit:"/min",
+  },
+  {
+    id:"gunfight", letter:"5", color:"red", name:"Realistic Gunfight Strings", reps:"25 reps × 2 sets",
+    short:"Win the 1v1, immediately reposition, re-center for the next angle.",
+    cue:"Win the first. Be ready for the trade.",
+    purpose:"Simulates real fight pressure — the habit of resetting after every kill.",
+    steps:[
+      "Private match, multiple Recruit bots, max player health.",
+      "Chain 1v1 engagements — after each kill, immediately reposition.",
+      "Re-center your crosshair for the next likely angle before they appear.",
+      "Never stop moving between kills — movement is also your reset.",
+      "Focus on the chain: win → reposition → re-center → win again.",
+    ],
+    metric:"Consecutive clean kills", max:10, unit:"/10",
+  },
+];
+
+const WEEK_1 = [
+  {n:1,focus:"SETUP DAY",detail:"Configure optimal settings (use Settings tab). NP: Target Fixation ×50. BM: Centering ×25. Complete Day 1 self-assessment.",rest:false},
+  {n:2,focus:"FIXATION",detail:"NP: Target Fixation ×75 reps. BM: Centering ×25 + Slide-Cancel ×25. Focus on smoothness not speed.",rest:false},
+  {n:3,focus:"SACCADES",detail:"NP: Saccade/Flick ×75 reps. BM: Recoil Control ×25 + Centering ×25. Eyes snap first, hands follow.",rest:false},
+  {n:4,focus:"REST",detail:"No drills. Play ranked normally. Notice your centering improving without thinking about it.",rest:true},
+  {n:5,focus:"TRACKING",detail:"NP: Tracking 3×90s. BM: Gunfight Strings ×25 + Minimap ×25. Smooth over fast.",rest:false},
+  {n:6,focus:"FULL CIRCUIT",detail:"NP: Fixation ×30 + Saccade ×30 + Tracking ×60s. BM: All 5 mechanics ×15 reps each.",rest:false},
+  {n:7,focus:"VOD REVIEW",detail:"NP: Peripheral ×3 min. Record 1 ranked match. Tag 3 moments where centering or map glance changed the fight.",rest:false},
+];
+const WEEK_2 = [
+  {n:8,focus:"FIXATION SPEED",detail:"NP: Target Fixation ×100 (faster tempo). BM: Centering ×30 + Slide-Cancel ×30. Push the speed.",rest:false},
+  {n:9,focus:"FLICK RANGE",detail:"NP: Saccade ×100 (extend distance). BM: Recoil Control ×30 + Gunfight Strings ×25.",rest:false},
+  {n:10,focus:"TRACKING SPEED",detail:"NP: Tracking 3×120s (increase bot speed one notch). BM: All 5 mechanics ×20 reps each.",rest:false},
+  {n:11,focus:"REST",detail:"No drills. Play ranked. Notice your reaction time improving.",rest:true},
+  {n:12,focus:"WEAKNESS DAY",detail:"NP: Double reps on your weakest drill. BM: Double reps on your weakest mechanic. Be honest about what's lagging.",rest:false},
+  {n:13,focus:"FULL CIRCUIT",detail:"NP: Full circuit at Week 2 reps. BM: All 5 mechanics ×25 reps each. Time yourself and log it.",rest:false},
+  {n:14,focus:"VOD + ASSESS",detail:"NP: Peripheral ×5 min. VOD review 1 match. Compare to Day 7. Mid-point self-assessment.",rest:false},
+];
+const WEEK_3 = [
+  {n:15,focus:"RANKED CENTERING",detail:"NP: Fixation ×50 + Saccade ×50. Play 3 ranked matches focusing ONLY on crosshair placement. Log opening duel win %.",rest:false},
+  {n:16,focus:"RANKED MOVEMENT",detail:"NP: Tracking 3×120s. Play 3 ranked matches focusing ONLY on movement before fights. Setup then shoot.",rest:false},
+  {n:17,focus:"PRESSURE DRILLS",detail:"NP: Full circuit at max speed. BM: Gunfight Strings ×40 with no pause between. Simulate pressure.",rest:false},
+  {n:18,focus:"REST",detail:"No drills. Play ranked normally. Notice how automatic the habits are becoming.",rest:true},
+  {n:19,focus:"SPAWN READS",detail:"NP: Peripheral + Minimap combo. BM: Replace 20 reps with spawn/read drills. Say your read out loud.",rest:false},
+  {n:20,focus:"FULL CIRCUIT MAX",detail:"NP: Full circuit at max reps. BM: All 5 mechanics ×30 reps. This is your peak training load.",rest:false},
+  {n:21,focus:"VOD REVIEW",detail:"NP: Light session. VOD review — categorise each death: aim vs positioning vs awareness.",rest:false},
+];
+const WEEK_4 = [
+  {n:22,focus:"CONSISTENCY",detail:"NP + BM: Full circuit standard reps. Focus on consistency not peak performance.",rest:false},
+  {n:23,focus:"RANKED TEST",detail:"Quick warmup ×5 min. Play 5 ranked matches. Track opening duel win %, KD, hill time. This is your test day.",rest:false},
+  {n:24,focus:"WEAKNESS HUNT",detail:"Review Day 23 stats. Double down on whatever cost you the most. Targeted drills only.",rest:false},
+  {n:25,focus:"REST",detail:"No drills. Play ranked. You should feel the difference by now.",rest:true},
+  {n:26,focus:"MOVEMENT MASTERY",detail:"NP: Saccade ×100 fast. BM: Slide-Cancel entries ×40 + Gunfight Strings ×30. Movement should feel automatic.",rest:false},
+  {n:27,focus:"FULL CIRCUIT FINAL",detail:"NP + BM: Full circuit at peak reps. Last full training session before final assessment.",rest:false},
+  {n:28,focus:"VOD + COMPARE",detail:"Record 1 ranked match. Watch Day 7 VOD then today's. Note every difference. This is your proof.",rest:false},
+  {n:29,focus:"RANKED PUSH",detail:"Quick warmup. Full ranked session. Apply everything. This is the day you push rank.",rest:false},
+  {n:30,focus:"FINAL ASSESSMENT",detail:"Complete Day 30 self-assessment. Compare to Day 1. Screenshot your rank. You earned it.",rest:false},
+];
+const ALL_DAYS = [...WEEK_1,...WEEK_2,...WEEK_3,...WEEK_4];
+
+const ASSESS_SKILLS = [
+  {id:"centering",name:"Centering / Crosshair Placement",desc:"Do you arrive pre-aimed at head level consistently?"},
+  {id:"flick",name:"Flick Accuracy",desc:"When an enemy appears unexpectedly, how often do you hit first bullet?"},
+  {id:"tracking",name:"Tracking",desc:"Can you stay locked on a moving target while they strafe?"},
+  {id:"recoil",name:"Recoil Control",desc:"Can you keep your spray on upper chest/head at range?"},
+  {id:"movement",name:"Movement Before Fights",desc:"Do you use movement to set up fights, not just react in them?"},
+  {id:"slide",name:"Slide-Cancel Timing",desc:"Is your slide-cancel smooth and consistently timed?"},
+  {id:"minimap",name:"Minimap Awareness",desc:"How often do you glance minimap per minute?"},
+  {id:"opening",name:"Opening Duel Win Rate",desc:"Do you win the first gunfight of each life more than 50% of the time?"},
+  {id:"composure",name:"Composure Under Pressure",desc:"Do you choke in clutch moments or stay calm?"},
+  {id:"overall",name:"Overall Ranked Performance",desc:"Honestly, where are you right now?"},
+];
+
+const SETTINGS = [
+  ["Sensitivity","1.6 – 1.85 horizontal and vertical. Pick one that feels slightly fast. Stick with it 21 days."],
+  ["Controller Vibration","OFF"],
+  ["Left Stick Deadzone","Min: 1 | Max: 65"],
+  ["Right Stick Deadzone","Min: based on your controller — increase until you see slight drift, then back off one notch."],
+  ["Sprint Assist","Tac Sprint Assist"],
+  ["Mantle Assist","OFF"],
+  ["Crouch Assist","OFF"],
+  ["Corner Slice","OFF"],
+  ["Wall Assist","Sideways Only"],
+  ["Slide Behaviour","Slide Only"],
+  ["Sprint Restore","ON"],
+  ["Slide Maintains Sprint","ON"],
+  ["Colour Filter","Filter 2"],
+  ["Colour Filter Target","Both — 100"],
+  ["HUD Bounds","Small"],
+  ["Crosshair Lines","Static"],
+  ["Crosshair Dot","Static and Default"],
+];
+
+// ─── GIST CLOUD SYNC ───────────────────────────────────────────────────────
+const GIST_FILENAME = "dreal_trainer_data.json";
+
+function getToken(){ return localStorage.getItem("dreal_gh_token")||""; }
+function getGistId(){ return localStorage.getItem("dreal_gist_id")||""; }
+function saveToken(t){ localStorage.setItem("dreal_gh_token",t); }
+function saveGistId(id){ localStorage.setItem("dreal_gist_id",id); }
+
+async function gistLoad(){
+  const token=getToken(), gistId=getGistId();
+  if(!token||!gistId) return null;
+  try{
+    const res=await fetch(`https://api.github.com/gists/${gistId}`,{
+      headers:{"Authorization":`token ${token}`,"Accept":"application/vnd.github.v3+json"}
+    });
+    if(!res.ok) return null;
+    const data=await res.json();
+    const content=data.files?.[GIST_FILENAME]?.content;
+    return content?JSON.parse(content):null;
+  }catch(e){ console.error("Gist load failed",e); return null; }
+}
+
+async function gistSave(payload){
+  const token=getToken();
+  if(!token) return false;
+  let gistId=getGistId();
+  const body={description:"DREAL Academy Trainer Data",public:false,files:{[GIST_FILENAME]:{content:JSON.stringify(payload,null,2)}}};
+  try{
+    let res,data;
+    if(gistId){
+      res=await fetch(`https://api.github.com/gists/${gistId}`,{method:"PATCH",headers:{"Authorization":`token ${token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    } else {
+      res=await fetch("https://api.github.com/gists",{method:"POST",headers:{"Authorization":`token ${token}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
+    }
+    if(!res.ok) return false;
+    data=await res.json();
+    if(data.id){ saveGistId(data.id); }
+    return true;
+  }catch(e){ console.error("Gist save failed",e); return false; }
+}
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+const todayStr=new Date().toLocaleDateString("en-CA");
+const dayName=new Date().toLocaleDateString("en-US",{weekday:"long"});
+
+const EMPTY_TODAY=()=>({
+  date:todayStr,
+  mission:"",mission2:"",mindset:"",focusSkill:[],objective:"",role:"",kpis:"",
+  neuro:{fixation:false,saccade:false,tracking:false,peripheral:false},
+  botScores:{},
+  scorecard:{openingDuel:"",firstBullet:"",ttk:"",mapGlances:"",mistake:"",win:""},
+  evening:{q1:"",q2:"",q3:""},
+  mindsetChecks:[],
+  preq1:false,preq2:false,preq3:false,
+  notes:"",
+});
+
+let state={
+  tab:"today",
+  screen:"app", // "setup" | "app"
+  sessions:[],
+  today:EMPTY_TODAY(),
+  assess:{day1:{},day30:{}},
+  expandNeuro:null,
+  expandBot:null,
+  saved:false,
+  syncing:false,
+  syncError:"",
+  assessDay:"day1",
+  assessSaved:false,
+  tokenInput:"",
+};
+
+// ─── SETUP SCREEN ──────────────────────────────────────────────────────────
+function buildSetup(){
+  return`
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#080a0d;">
+    <div style="max-width:420px;width:100%;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;">
+        <div class="logo-mark"></div>
+        <div>
+          <div class="logo-text">DREAL ACADEMY</div>
+          <div class="logo-sub">CDL TRAINING SYSTEM</div>
+        </div>
+      </div>
+
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:8px;">CLOUD SAVE SETUP</div>
+      <div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:24px;">
+        Your progress saves to a private GitHub Gist — it never gets wiped, works across devices, and only you can see it.
+      </div>
+
+      <div style="background:#0d0f13;border:1px solid #1a1d23;border-radius:3px;padding:16px;margin-bottom:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#c8a850;margin-bottom:12px;">HOW TO GET YOUR TOKEN</div>
+        ${[
+          "Go to github.com and sign in (free account)",
+          "Click your profile photo → Settings",
+          "Scroll to Developer Settings (bottom of left sidebar)",
+          "Click Personal Access Tokens → Tokens (classic)",
+          "Click Generate new token (classic)",
+          "Give it any name e.g. 'DREAL Trainer'",
+          "Tick the gist scope only — nothing else",
+          "Click Generate token and copy it",
+        ].map((s,i)=>`
+          <div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;">
+            <div style="min-width:20px;height:20px;background:#c8a85022;border:1px solid #c8a85044;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#c8a850;font-family:'Share Tech Mono',monospace;flex-shrink:0;">${i+1}</div>
+            <div style="font-size:12px;color:#999;line-height:1.5;">${s}</div>
+          </div>
+        `).join("")}
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#444;margin-bottom:6px;">PASTE YOUR TOKEN</div>
+        <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+          style="background:#080a0d;border:1px solid #2a2f38;color:#e0ddd8;font-family:'Share Tech Mono',monospace;font-size:13px;width:100%;padding:10px 12px;border-radius:2px;"
+          value="${esc(state.tokenInput||"")}"/>
+      </div>
+
+      ${state.syncError?`<div style="font-size:12px;color:#ff4422;margin-bottom:10px;">⚠ ${esc(state.syncError)}</div>`:""}
+
+      <button class="btn-primary" id="connectBtn" style="width:100%;padding:14px;" ${state.syncing?"disabled":""}>
+        ${state.syncing?"CONNECTING…":"CONNECT & START"}
+      </button>
+
+      <div style="font-size:11px;color:#333;margin-top:12px;text-align:center;">
+        Token stored only on this device. Never shared.
+      </div>
+    </div>
+  </div>`;
+}
+
+async function init(){
+  const token=getToken();
+  if(!token){
+    state.screen="setup";
+    render();
+    return;
+  }
+  // Try loading from Gist
+  state.syncing=true;
+  render();
+  const cloud=await gistLoad();
+  if(cloud){
+    state.sessions=cloud.sessions||[];
+    state.assess=cloud.assess||{day1:{},day30:{}};
+    const td=state.sessions.find(s=>s.date===todayStr);
+    if(td) state.today={...EMPTY_TODAY(),...td};
+  }
+  state.syncing=false;
+  state.screen="app";
+  render();
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function render(){
+  document.getElementById("app").innerHTML=buildApp();
+  bind();
+}
+
+function buildApp(){
+  if(state.screen==="setup") return buildSetup();
+  if(state.syncing) return`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#080a0d;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#555;">LOADING…</div>`;
+  return`
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="logo-text">DREAL ACADEMY</div>
+        <div class="logo-sub">CDL TRAINING SYSTEM</div>
+      </div>
+      <div class="header-date">${todayStr}</div>
+    </div>
+    <div class="tabs">
+      ${["today","drills","calendar","log","assess","settings"].map(t=>
+        `<button class="tab${state.tab===t?" active":""}" data-tab="${t}">${t}</button>`
+      ).join("")}
+    </div>
+  </div>
+  <div class="content">
+    ${state.tab==="today"?buildToday():""}
+    ${state.tab==="drills"?buildDrills():""}
+    ${state.tab==="calendar"?buildCalendar():""}
+    ${state.tab==="log"?buildLog():""}
+    ${state.tab==="assess"?buildAssess():""}
+    ${state.tab==="settings"?buildSettings():""}
+  </div>`;
+}
+
+// ─── TODAY ─────────────────────────────────────────────────────────────────
+function buildToday(){
+  const t=state.today;
+  const neuroAll=Object.values(t.neuro).every(Boolean);
+  return`
+  <div class="today-top">
+    <div class="today-mission">CHAMPION'S DAILY PLANNER</div>
+    <div class="today-dayname">${dayName.toUpperCase()}</div>
+    <div class="today-focus">DREAL ACADEMY — TIER 1</div>
+  </div>
+
+  <!-- MORNING FOCUS -->
+  <div class="sec-label">Morning Focus</div>
+  <div class="card">
+    <div class="field-label">MY CHAMPION'S MISSION TODAY</div>
+    <div style="font-size:11px;color:#555;margin-bottom:6px;">I am the kind of competitor who…</div>
+    <input class="text-in" type="text" placeholder="…never stops improving" value="${esc(t.mission)}" data-field="mission"/>
+
+    <div style="margin-top:12px;" class="field-label">MINDSET FOCUS</div>
+    <div class="pill-row">
+      ${["Calm","Aggressive","Disciplined","Confident","Curious"].map(m=>
+        `<div class="pill${t.mindset===m?" sel":""}" data-mindset="${m}">${m}</div>`
+      ).join("")}
+    </div>
+
+    <div style="margin-top:12px;" class="field-label">VISUALIZATION (2–3 MIN)</div>
+    <input class="text-in" type="text" placeholder="How do I want to feel and execute today?" value="${esc(t.mission2||"")}" data-field="mission2"/>
+  </div>
+
+  <!-- DAILY INTENT -->
+  <div class="sec-label" style="margin-top:4px;">Daily Intent (60–90 sec)</div>
+  <div class="card">
+    <div class="field-label">SINGLE OBJECTIVE</div>
+    <input class="text-in" type="text" placeholder='e.g. "Win more opening gunfights on P1"' value="${esc(t.objective)}" data-field="objective" style="margin-bottom:10px;"/>
+
+    <div class="field-label">FOCUS SKILL</div>
+    <div class="chip-row">
+      ${["Centering","Flicks","Tracking","Recoil","Minimap"].map(s=>
+        `<div class="chip${(t.focusSkill||[]).includes(s)?" sel":""}" data-skill="${s}">${s}</div>`
+      ).join("")}
+    </div>
+
+    <div style="margin-top:10px;" class="field-label">ROLE & MODE</div>
+    <input class="text-in" type="text" placeholder="e.g. Entry / Hardpoint" value="${esc(t.role)}" data-field="role"/>
+
+    <div style="margin-top:10px;" class="field-label">3 MATCH KPIs</div>
+    <input class="text-in" type="text" placeholder="1. _____  2. _____  3. _____" value="${esc(t.kpis)}" data-field="kpis"/>
+  </div>
+
+  <!-- NEURO-PRIMING -->
+  <div class="sec-label" style="margin-top:4px;">Neuro-Priming — Vision → Hand (15 min)</div>
+  <div style="font-size:11px;color:#555;margin-bottom:10px;">Firing Range. Eyes lead, hand follows. Never skip this.</div>
+  <div class="card" style="padding:8px 14px;">
+    ${NEURO_DRILLS.map(d=>`
+      <div class="check-row" data-neuro="${d.id}">
+        <div class="check-box${t.neuro[d.id]?" checked":""}">${t.neuro[d.id]?"✓":""}</div>
+        <div class="check-text${t.neuro[d.id]?" checked":""}">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;">${d.letter}) ${d.name}</span>
+          <span style="font-size:10px;color:#444;margin-left:6px;">${d.reps}</span>
+        </div>
+      </div>
+    `).join("")}
+    ${neuroAll?`<div style="font-size:10px;color:#4caf50;letter-spacing:1px;padding:6px 0;">✓ NEURO-PRIMING COMPLETE</div>`:""}
+  </div>
+
+  <!-- BOT MECHANICS -->
+  <div class="sec-label" style="margin-top:4px;">Bot Mechanics — Precision → Speed (~15 min)</div>
+  <div style="font-size:11px;color:#555;margin-bottom:10px;">2 sets of each. Quality first, tempo second. Chest-height crosshair always.</div>
+  ${BOT_DRILLS.map(d=>`
+    <div class="phase-block${d.color==="blue"?" blue":d.color==="red"?" red":""}">
+      <div class="drill-top" data-botdrill="${d.id}">
+        <div class="drill-letter${d.color==="blue"?" blue":d.color==="red"?" red":""}">${d.letter}</div>
+        <div style="flex:1">
+          <div class="drill-name">${d.name}</div>
+          <div class="drill-short">${d.short}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;" data-stop>
+          <input class="score-in" type="number" inputmode="decimal" min="0" max="${d.max}" placeholder="—" value="${esc(t.botScores[d.id]||"")}" data-botscore="${d.id}"/>
+          <div class="score-unit">${d.unit}</div>
+        </div>
+        <div class="phase-chev" style="margin-left:6px;">${state.expandBot===d.id?"▲":"▼"}</div>
+      </div>
+      ${state.expandBot===d.id?`
+        <div class="drill-expanded">
+          <div class="cue-box">"${d.cue}"</div>
+          <div class="step-list">
+            ${d.steps.map((s,i)=>`
+              <div class="step-item">
+                <div class="step-n${d.color==="blue"?" blue":d.color==="green"?" green":""}">${i+1}</div>
+                <div class="step-text">${s}</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="purpose-box"><span class="purpose-label">PURPOSE </span>${d.purpose}</div>
+        </div>
+      `:""}
+    </div>
+  `).join("")}
+
+  <!-- QUEUE PRE-QUEUE -->
+  <div class="sec-label" style="margin-top:4px;">Queue Pre-Queue (45 sec)</div>
+  <div class="card" style="padding:10px 14px;">
+    ${[["Sensitivity / FOV / Audio checked","preq1"],["Map/Mode focus confirmed","preq2"],["Role reminders reviewed","preq3"]].map(([lbl,key])=>`
+      <div class="check-row" data-preq="${key}">
+        <div class="check-box${t[key]?" checked":""}">${t[key]?"✓":""}</div>
+        <div class="check-text${t[key]?" checked":""}">${lbl}</div>
+      </div>
+    `).join("")}
+    <div style="font-size:11px;color:#c8a850;font-style:italic;padding:6px 0 2px;">"Calm hands, loud eyes."</div>
+  </div>
+
+  <!-- DAILY SCORECARD -->
+  <div class="sec-label" style="margin-top:4px;">Daily Scorecard (2 min after session)</div>
+  <div class="card" style="padding:8px 14px;">
+    ${[
+      ["Opening duel win %","openingDuel","e.g. 62%"],
+      ["First-bullet accuracy (range drill)","firstBullet","e.g. 8/10"],
+      ["Average TTK feel (1–10)","ttk","e.g. 7"],
+      ["Map glances per minute (est.)","mapGlances","e.g. 5"],
+    ].map(([lbl,key,ph])=>`
+      <div class="score-card-row">
+        <div class="score-card-label">${lbl}</div>
+        <input class="score-card-in" type="text" inputmode="decimal" placeholder="${ph}" value="${esc(t.scorecard[key]||"")}" data-scorecard="${key}"/>
+      </div>
+    `).join("")}
+    <div style="margin-top:10px;" class="field-label">TOP MISTAKE REPEATED</div>
+    <input class="text-in" type="text" placeholder="e.g. Standing still in gunfights" value="${esc(t.scorecard.mistake||"")}" data-scorecard="mistake"/>
+    <div style="margin-top:8px;" class="field-label">ONE WIN TODAY — LOCK IT IN</div>
+    <input class="text-in" type="text" placeholder="e.g. Pre-aimed 7/10 corners correctly" value="${esc(t.scorecard.win||"")}" data-scorecard="win"/>
+  </div>
+
+  <!-- MICRO RESET -->
+  <div class="sec-label" style="margin-top:4px;">Micro-Reset Between Matches</div>
+  <div class="card gold">
+    <div style="font-size:12px;color:#888;line-height:1.8;">
+      <div>🫁 <strong style="color:#c8a850;">Breath:</strong> 4 cycles — inhale 4, hold 2, exhale 6.</div>
+      <div style="margin-top:4px;">📋 <strong style="color:#c8a850;">Debrief (one line):</strong> What lost me the most fights?</div>
+      <div style="margin-top:4px;">🔧 <strong style="color:#c8a850;">Adjustment:</strong> What single thing do I change next map?</div>
+    </div>
+    <textarea class="text-in" style="margin-top:10px;" placeholder="Between-match notes…" data-field="notes">${esc(t.notes||"")}</textarea>
+  </div>
+
+  <!-- EVENING REFLECTION -->
+  <div class="sec-label" style="margin-top:4px;">Evening Reflection</div>
+  <div class="card">
+    ${[
+      ["1. What moved me closer to my mission today?","q1"],
+      ["2. Where did I fall short mentally? Why?","q2"],
+      ["3. How will I improve tomorrow?","q3"],
+    ].map(([q,key])=>`
+      <div style="margin-bottom:10px;">
+        <div class="reflect-num">${q}</div>
+        <input class="text-in" type="text" placeholder="…" value="${esc(t.evening[key]||"")}" data-evening="${key}"/>
+      </div>
+    `).join("")}
+    <div class="field-label" style="margin-top:4px;">MINDSET CHECK</div>
+    <div class="mindset-checks">
+      ${["Trained with intention","Stayed composed","Grew 1% sharper today"].map(m=>
+        `<div class="m-check${(t.mindsetChecks||[]).includes(m)?" checked":""}" data-mcheck="${m}">${m}</div>`
+      ).join("")}
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;margin-top:8px;">
+    <button class="btn-primary" id="saveBtn">Save Session</button>
+    ${state.saved?`<span class="saved-msg">✓ SAVED</span>`:""}
+  </div>`;
+}
+
+// ─── DRILLS REFERENCE ──────────────────────────────────────────────────────
+function buildDrills(){
+  return`
+  <div class="sec-label">Neuro-Priming Drills — Firing Range</div>
+  <div style="font-size:11px;color:#555;margin-bottom:12px;">Do these before EVERY session. Eyes control aim, not thumbs.</div>
+  ${NEURO_DRILLS.map(d=>`
+    <div class="phase-block">
+      <div class="phase-header" data-expand-neuro="${d.id}">
+        <div class="drill-letter">${d.letter}</div>
+        <div style="flex:1;">
+          <div class="phase-name">${d.name}</div>
+          <div class="phase-desc">${d.short}</div>
+        </div>
+        <div class="phase-time">${d.time}</div>
+        <div class="phase-chev" style="margin-left:8px;">${state.expandNeuro===d.id?"▲":"▼"}</div>
+      </div>
+      ${state.expandNeuro===d.id?`
+        <div class="phase-expanded">
+          <div class="cue-box">"${d.cue}"</div>
+          ${d.steps.map((s,i)=>`
+            <div class="step-item">
+              <div class="step-n">${i+1}</div>
+              <div class="step-text">${s}</div>
+            </div>
+          `).join("")}
+          <div class="purpose-box" style="margin-top:8px;"><span class="purpose-label">PURPOSE </span>${d.purpose}</div>
+        </div>
+      `:""}
+    </div>
+  `).join("")}
+
+  <div class="sec-label" style="margin-top:16px;">Bot Mechanics Drills</div>
+  <div style="font-size:11px;color:#555;margin-bottom:12px;">2 sets of 25 reps each. Global rule: chest-height crosshair, burst or controlled spray, reset between reps.</div>
+  ${BOT_DRILLS.map(d=>`
+    <div class="phase-block${d.color==="blue"?" blue":d.color==="red"?" red":""}">
+      <div class="phase-header" data-expand-bot="${d.id}">
+        <div class="drill-letter${d.color==="blue"?" blue":d.color==="red"?" red":""}">${d.letter}</div>
+        <div style="flex:1;">
+          <div class="phase-name">${d.name}</div>
+          <div class="phase-desc">${d.short}</div>
+        </div>
+        <div class="phase-time">${d.reps}</div>
+        <div class="phase-chev" style="margin-left:8px;">${state.expandBot===d.id?"▲":"▼"}</div>
+      </div>
+      ${state.expandBot===d.id?`
+        <div class="phase-expanded">
+          <div class="cue-box">"${d.cue}"</div>
+          ${d.steps.map((s,i)=>`
+            <div class="step-item">
+              <div class="step-n${d.color==="blue"?" blue":""}">${i+1}</div>
+              <div class="step-text">${s}</div>
+            </div>
+          `).join("")}
+          <div class="purpose-box" style="margin-top:8px;"><span class="purpose-label">PURPOSE </span>${d.purpose}</div>
+        </div>
+      `:""}
+    </div>
+  `).join("")}
+
+  <div class="sec-label" style="margin-top:16px;">Common Pitfalls</div>
+  <div class="card">
+    ${[
+      ["❌","Don't rush neuro drills. If your eyes are sloppy, your hands will be sloppier."],
+      ["✅","Speak cues out loud: 'Eyes first', 'Glue the crosshair', 'Map then move'."],
+      ["❌","Don't max speed first — earn speed with smoothness and control."],
+      ["✅","Stop when form breaks. Reset posture, breathe, continue."],
+    ].map(([icon,text])=>`
+      <div class="pitfall-row">
+        <div class="pitfall-icon">${icon}</div>
+        <div class="pitfall-text">${text}</div>
+      </div>
+    `).join("")}
+  </div>`;
+}
+
+// ─── CALENDAR ──────────────────────────────────────────────────────────────
+function buildCalendar(){
+  const startDate=localStorage.getItem("dreal_startdate");
+  let daysSinceStart=-1;
+  if(startDate){
+    const diff=Math.floor((new Date(todayStr)-new Date(startDate))/(1000*60*60*24));
+    daysSinceStart=diff;
+  }
+
+  function dayStatus(n){
+    if(!startDate)return"future";
+    const d=daysSinceStart-(n-1);
+    if(d===0)return"today";
+    if(d>0)return"done";
+    return"future";
+  }
+
+  return`
+  <div class="sec-label">30-Day Aiming & Movement Calendar</div>
+  <div style="font-size:11px;color:#555;margin-bottom:12px;">20 minutes per day. Follow the system. Track the results.</div>
+
+  ${!startDate?`
+    <div class="card gold" style="margin-bottom:16px;">
+      <div style="font-size:13px;color:#c8a850;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;margin-bottom:6px;">START YOUR 30 DAYS</div>
+      <div style="font-size:12px;color:#888;margin-bottom:10px;">Tap below to set today as Day 1.</div>
+      <button class="btn-primary" id="startBtn">Begin Day 1 Today</button>
+    </div>
+  `:`<div style="font-size:11px;color:#555;margin-bottom:12px;">Started: ${startDate} · Day ${daysSinceStart+1} of 30</div>`}
+
+  ${[["WEEK 1 — FOUNDATION","Build the eye-hand connection. Slow is smooth, smooth is fast.",WEEK_1],
+     ["WEEK 2 — SPEED","Increase tempo while maintaining accuracy.",WEEK_2],
+     ["WEEK 3 — INTEGRATION","Apply drills to ranked scenarios. Bridge practice and gameplay.",WEEK_3],
+     ["WEEK 4 — LOCK IN","Cement the habits. Maintain peak performance. Measure results.",WEEK_4],
+  ].map(([wk,goal,days])=>`
+    <div class="week-block">
+      <div class="week-label">${wk}</div>
+      <div style="font-size:11px;color:#555;margin-bottom:8px;">${goal}</div>
+      ${days.map(d=>{
+        const status=dayStatus(d.n);
+        return`
+        <div class="day-row">
+          <div class="day-num${status==="today"?" today":status==="done"?" done":""}">${d.n}</div>
+          <div style="flex:1;">
+            <div class="day-focus${status==="today"?" today":""}">${d.focus}</div>
+            <div class="day-detail">${d.detail}</div>
+          </div>
+          ${d.rest?`<div class="day-badge rest-badge">REST</div>`:
+            status==="today"?`<div class="day-badge today-badge">TODAY</div>`:
+            status==="done"?`<div class="day-badge done-badge">DONE</div>`:""}
+        </div>`;
+      }).join("")}
+    </div>
+  `).join("")}`;
+}
+
+// ─── LOG ───────────────────────────────────────────────────────────────────
+function buildLog(){
+  const logs=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20);
+  return`
+  <div class="sec-label">Session History</div>
+  ${logs.length===0?`<div class="empty">NO SESSIONS LOGGED YET<br>Complete today's session to start tracking.</div>`:`
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="log-row hdr"><div>Date</div><div>Opening % · TTK · Map</div><div>Drills</div></div>
+      ${logs.map(l=>`
+        <div class="log-row" style="${l.date===todayStr?"background:#0e0d0a":""}">
+          <div class="log-date-cell${l.date===todayStr?" today":""}">${l.date}</div>
+          <div class="log-stats-cell">
+            ${l.scorecard?.openingDuel||"—"} · ${l.scorecard?.ttk||"—"} · ${l.scorecard?.mapGlances||"—"}
+            ${l.scorecard?.win?`<div class="log-note-cell">✓ ${esc(l.scorecard.win)}</div>`:""}
+          </div>
+          <div style="color:#555;font-family:'Share Tech Mono',monospace;">
+            ${Object.values(l.neuro||{}).filter(Boolean).length}/4
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `}`;
+}
+
+// ─── SELF ASSESSMENT ───────────────────────────────────────────────────────
+function buildAssess(){
+  const a=state.assess;
+  const activeDay=state.assessDay||"day1";
+  const scores=a[activeDay]||{};
+  return`
+  <div class="sec-label">Before / After Self-Assessment</div>
+  <div style="font-size:11px;color:#555;margin-bottom:12px;">Fill in on Day 1 and Day 30. Be brutally honest. This is your proof the system works.</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    ${["day1","day30"].map(d=>`
+      <button class="tab${activeDay===d?" active":""}" style="border:1px solid ${activeDay===d?"#c8a850":"#1a1d23"};border-radius:2px;padding:6px 16px;" data-assess-day="${d}">${d==="day1"?"DAY 1":"DAY 30"}</button>
+    `).join("")}
+  </div>
+
+  <div class="card" style="padding:0 14px;">
+    <div style="padding:10px 0;border-bottom:1px solid #1a1d23;">
+      <div class="field-label">CURRENT RANK</div>
+      <input class="text-in" type="text" placeholder="e.g. Gold III" value="${esc(scores.rank||"")}" data-assess="rank" style="margin-top:4px;"/>
+    </div>
+    ${activeDay==="day1"?`
+      <div style="padding:10px 0;border-bottom:1px solid #1a1d23;">
+        <div class="field-label">PEAK RANK</div>
+        <input class="text-in" type="text" placeholder="e.g. Platinum II" value="${esc(scores.peakRank||"")}" data-assess="peakRank" style="margin-top:4px;"/>
+      </div>
+    `:""}
+    ${ASSESS_SKILLS.map(s=>`
+      <div class="assess-row">
+        <div class="assess-skill">
+          <div>${s.name}</div>
+          <div class="assess-desc">${s.desc}</div>
+        </div>
+        <div class="rating-row">
+          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`
+            <div class="rating-dot${scores[s.id]===n?" sel":""}" data-assess-rate="${s.id}" data-val="${n}">${n}</div>
+          `).join("")}
+        </div>
+      </div>
+    `).join("")}
+    <div style="padding:10px 0;border-bottom:1px solid #1a1d23;">
+      <div class="field-label">${activeDay==="day1"?"#1 THING HOLDING YOU BACK":"WHAT ACTUALLY CHANGED THE MOST?"}</div>
+      <textarea class="text-in" style="margin-top:4px;" placeholder="Be brutally honest…" data-assess="blocker">${esc(scores.blocker||"")}</textarea>
+    </div>
+    ${activeDay==="day1"?`
+      <div style="padding:10px 0;">
+        <div class="field-label">WHERE DO YOU WANT TO BE IN 30 DAYS?</div>
+        <input class="text-in" type="text" placeholder="Target rank…" value="${esc(scores.target||"")}" data-assess="target" style="margin-top:4px;"/>
+      </div>
+    `:`
+      <div style="padding:10px 0;">
+        <div class="field-label">WHAT SURPRISED YOU?</div>
+        <textarea class="text-in" style="margin-top:4px;" placeholder="…" data-assess="surprised">${esc(scores.surprised||"")}</textarea>
+      </div>
+    `}
+  </div>
+  <button class="btn-primary" id="saveAssess" style="margin-top:12px;">Save Assessment</button>
+  ${state.assessSaved?`<span class="saved-msg" style="margin-left:12px;">✓ SAVED</span>`:""}
+  `;
+}
+
+// ─── SETTINGS ──────────────────────────────────────────────────────────────
+function buildSettings(){
+  return`
+  <div class="sec-label">Optimal Settings — CDL Level</div>
+  <div style="font-size:11px;color:#555;margin-bottom:12px;">Configure before running a single drill.</div>
+  <div class="card">
+    ${SETTINGS.map(([k,v])=>`
+      <div class="set-row">
+        <div class="set-key">${k}</div>
+        <div class="set-val">${v}</div>
+      </div>
+    `).join("")}
+  </div>
+  <div class="sec-label" style="margin-top:16px;">Cloud Save</div>
+  <div class="card">
+    <div style="font-size:12px;color:#888;margin-bottom:10px;">
+      Progress syncs to a private GitHub Gist on every save. Gist ID: <span style="font-family:'Share Tech Mono',monospace;color:#555;">${getGistId()?getGistId().slice(0,12)+"…":"not set"}</span>
+    </div>
+    <button id="disconnectBtn" style="background:none;border:1px solid #2a2f38;color:#666;padding:8px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;border-radius:2px;cursor:pointer;">
+      DISCONNECT & RESET TOKEN
+    </button>
+  </div>
+  <div class="card">
+    ${[
+      ["Mon/Tue","Add +10 reps to your weakest bot category."],
+      ["Wed","Increase tracking speed by one notch, maintain accuracy."],
+      ["Thu","Extend flick distance."],
+      ["Fri","Replace 20 reps with spawn/read drills."],
+      ["Sat/Sun","VOD 15 min — tag 3 moments where centering or map glance changed the fight."],
+    ].map(([d,t])=>`
+      <div class="set-row">
+        <div class="set-key">${d}</div>
+        <div class="set-val">${t}</div>
+      </div>
+    `).join("")}
+  </div>`;
+}
+
+// ─── BIND ──────────────────────────────────────────────────────────────────
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function bind(){
+  // Tabs
+  document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",()=>{state.tab=el.dataset.tab;state.saved=false;render();}));
+
+  // Mission / text fields
+  document.querySelectorAll("[data-field]").forEach(el=>el.addEventListener("input",()=>{state.today[el.dataset.field]=el.value;state.saved=false;}));
+
+  // Mindset pills
+  document.querySelectorAll("[data-mindset]").forEach(el=>el.addEventListener("click",()=>{state.today.mindset=el.dataset.mindset;state.saved=false;render();}));
+
+  // Focus skills
+  document.querySelectorAll("[data-skill]").forEach(el=>el.addEventListener("click",()=>{
+    const s=el.dataset.skill,arr=state.today.focusSkill||[];
+    state.today.focusSkill=arr.includes(s)?arr.filter(x=>x!==s):[...arr,s];
+    state.saved=false;render();
+  }));
+
+  // Neuro checkboxes
+  document.querySelectorAll("[data-neuro]").forEach(el=>el.addEventListener("click",()=>{
+    state.today.neuro[el.dataset.neuro]=!state.today.neuro[el.dataset.neuro];state.saved=false;render();
+  }));
+
+  // Pre-queue checks
+  document.querySelectorAll("[data-preq]").forEach(el=>el.addEventListener("click",()=>{
+    state.today[el.dataset.preq]=!state.today[el.dataset.preq];state.saved=false;render();
+  }));
+
+  // Bot drill expand (today tab)
+  document.querySelectorAll("[data-botdrill]").forEach(el=>el.addEventListener("click",(e)=>{
+    if(e.target.closest("[data-stop]"))return;
+    const id=el.dataset.botdrill;state.expandBot=state.expandBot===id?null:id;render();
+  }));
+
+  // Bot scores
+  document.querySelectorAll("[data-botscore]").forEach(el=>el.addEventListener("input",()=>{
+    state.today.botScores[el.dataset.botscore]=el.value;state.saved=false;
+  }));
+
+  // Scorecard
+  document.querySelectorAll("[data-scorecard]").forEach(el=>el.addEventListener("input",()=>{
+    state.today.scorecard[el.dataset.scorecard]=el.value;state.saved=false;
+  }));
+
+  // Evening
+  document.querySelectorAll("[data-evening]").forEach(el=>el.addEventListener("input",()=>{
+    state.today.evening[el.dataset.evening]=el.value;state.saved=false;
+  }));
+
+  // Mindset checks
+  document.querySelectorAll("[data-mcheck]").forEach(el=>el.addEventListener("click",()=>{
+    const m=el.dataset.mcheck,arr=state.today.mindsetChecks||[];
+    state.today.mindsetChecks=arr.includes(m)?arr.filter(x=>x!==m):[...arr,m];
+    state.saved=false;render();
+  }));
+
+  // Save session
+  const saveBtn=document.getElementById("saveBtn");
+  if(saveBtn)saveBtn.addEventListener("click",async()=>{
+    const entry={...state.today,date:todayStr};
+    const idx=state.sessions.findIndex(s=>s.date===todayStr);
+    if(idx>=0)state.sessions[idx]=entry; else state.sessions.unshift(entry);
+    state.sessions=state.sessions.slice(0,60);
+    state.syncing=true; render();
+    const ok=await gistSave({sessions:state.sessions,assess:state.assess});
+    state.syncing=false;
+    state.saved=ok;
+    state.syncError=ok?"":"Save failed — check your token in Settings.";
+    render();
+  });
+
+  // Drills reference expand
+  document.querySelectorAll("[data-expand-neuro]").forEach(el=>el.addEventListener("click",()=>{
+    const id=el.dataset.expandNeuro;state.expandNeuro=state.expandNeuro===id?null:id;render();
+  }));
+  document.querySelectorAll("[data-expand-bot]").forEach(el=>el.addEventListener("click",()=>{
+    const id=el.dataset.expandBot;state.expandBot=state.expandBot===id?null:id;render();
+  }));
+
+  // Setup screen
+  const tokenInput=document.getElementById("tokenInput");
+  if(tokenInput){
+    tokenInput.addEventListener("input",()=>{ state.tokenInput=tokenInput.value; });
+    document.getElementById("connectBtn")?.addEventListener("click",async()=>{
+      const t=(state.tokenInput||"").trim();
+      if(!t){ state.syncError="Please paste your GitHub token."; render(); return; }
+      saveToken(t);
+      state.syncing=true; state.syncError=""; render();
+      // Try creating/finding gist
+      const ok=await gistSave({sessions:[],assess:{day1:{},day30:{}}});
+      if(!ok){
+        localStorage.removeItem("dreal_gh_token");
+        state.syncing=false;
+        state.syncError="Token invalid or no gist permission. Make sure you ticked the 'gist' scope.";
+        render(); return;
+      }
+      // Load any existing data
+      const cloud=await gistLoad();
+      if(cloud){ state.sessions=cloud.sessions||[]; state.assess=cloud.assess||{day1:{},day30:{}}; }
+      state.syncing=false; state.screen="app"; render();
+    });
+  }
+
+  // Disconnect (in settings)
+  document.getElementById("disconnectBtn")?.addEventListener("click",()=>{
+    if(confirm("Disconnect cloud save? Your token will be removed from this device.")){
+      localStorage.removeItem("dreal_gh_token");
+      localStorage.removeItem("dreal_gist_id");
+      state.screen="setup"; state.tokenInput=""; render();
+    }
+  });
+
+  // Calendar start
+  const startBtn=document.getElementById("startBtn");
+  if(startBtn)startBtn.addEventListener("click",()=>{localStorage.setItem("dreal_startdate",todayStr);render();});
+
+  // Assessment day toggle
+  document.querySelectorAll("[data-assess-day]").forEach(el=>el.addEventListener("click",()=>{state.assessDay=el.dataset.assessDay;render();}));
+
+  // Assessment inputs
+  document.querySelectorAll("[data-assess]").forEach(el=>el.addEventListener("input",()=>{
+    const day=state.assessDay||"day1";
+    if(!state.assess[day])state.assess[day]={};
+    state.assess[day][el.dataset.assess]=el.value;
+    state.assessSaved=false;
+  }));
+
+  // Assessment ratings
+  document.querySelectorAll("[data-assess-rate]").forEach(el=>el.addEventListener("click",()=>{
+    const day=state.assessDay||"day1",skill=el.dataset.assessRate,val=parseInt(el.dataset.val);
+    if(!state.assess[day])state.assess[day]={};
+    state.assess[day][skill]=val;
+    state.assessSaved=false;render();
+  }));
+
+  // Save assessment
+  const saveAssess=document.getElementById("saveAssess");
+  if(saveAssess)saveAssess.addEventListener("click",async()=>{
+    state.syncing=true; render();
+    const ok=await gistSave({sessions:state.sessions,assess:state.assess});
+    state.syncing=false;
+    state.assessSaved=ok;
+    render();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
